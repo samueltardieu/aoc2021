@@ -69,7 +69,15 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
     let version = aoc_entry.version;
     let func = parse_macro_input!(input as ItemFn);
     let func_name = func.sig.ident.clone();
-    let runner_func_name = Ident::new(&format!("runner_{}_{}_{}", day, part, version.clone().unwrap_or_else(|| String::from("none"))), func.sig.ident.span());
+    let runner_func_name = Ident::new(
+        &format!(
+            "runner_{}_{}_{}",
+            day,
+            part,
+            version.clone().unwrap_or_else(|| String::from("none"))
+        ),
+        func.sig.ident.span(),
+    );
     let inputs = match func.sig.inputs.first() {
         Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& str") => {
             quote!((&crate::input::input_string(#day)?))
