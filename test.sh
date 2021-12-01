@@ -1,3 +1,3 @@
 #! /bin/sh -e
 
-cargo run --release | egrep "Part [12]:" > result.txt && diff expected.txt result.txt && rm result.txt
+cargo run --release -- --all > result.txt && diff expected.txt result.txt && rm result.txt

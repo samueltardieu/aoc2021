@@ -1,2 +1,2 @@
-Day 1 - Part 1: 1387
-Day 1 - Part 2: 1362
+Day 1 - part 1: 1387
+Day 1 - part 2: 1362
