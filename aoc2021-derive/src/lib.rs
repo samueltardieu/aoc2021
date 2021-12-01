@@ -1,5 +1,4 @@
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use proc_macro_error::{abort, proc_macro_error};
 use quote::{quote, ToTokens};
 use syn::{
@@ -68,18 +67,9 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
     let day = aoc_entry.day;
     let part = aoc_entry.part;
     let version = aoc_entry.version;
-    let dummy = Ident::new(
-        &format!(
-            "RUNNER_{}_{}_{}",
-            day,
-            part,
-            version.clone().unwrap_or_else(|| String::from("none"))
-        ),
-        Span::call_site(),
-    );
     let func = parse_macro_input!(input as ItemFn);
     let func_name = func.sig.ident.clone();
-    let runner_func_name = Ident::new(&format!("runner_{}", func.sig.ident), func.sig.ident.span());
+    let runner_func_name = Ident::new(&format!("runner_{}_{}_{}", day, part, version.clone().unwrap_or_else(|| String::from("none"))), func.sig.ident.span());
     let inputs = match func.sig.inputs.first() {
         Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& str") => {
             quote!((&crate::input::input_string(#day)?))
@@ -99,18 +89,10 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
         }
         _ => abort!(func.sig, "AOC part cannot return ()"),
     };
-    let version = match version {
-        Some(v) => quote! { Some(String::from(#v)) },
-        None => quote! { None },
-    };
     quote! {
-        ::lazy_static::lazy_static! {
-            pub static ref #dummy: u8 = {crate::runners::register_runner(#day, #part, #version, || #runner_func_name()); 0};
-        }
-
         #func
 
-        fn #runner_func_name() -> #ty {
+        pub fn #runner_func_name() -> #ty {
             #call
         }
     }

@@ -5,13 +5,15 @@ use std::{
     path::PathBuf,
 };
 
-fn output(refs: &[String]) -> anyhow::Result<()> {
+fn output(runners: &[String]) -> anyhow::Result<()> {
     let outdir = std::env::var("OUT_DIR")?;
     let mut outfile = PathBuf::from(outdir);
     outfile.push("register.rs");
     let mut fd = File::create(outfile)?;
     writeln!(fd, "pub fn register() {{")?;
-    writeln!(fd, "  let _ = {};", refs.join("+"))?;
+    for runner in runners {
+        writeln!(fd, "    {}", runner)?;
+    }
     writeln!(fd, "}}")?;
     Ok(())
 }
@@ -33,9 +35,10 @@ fn main() -> anyhow::Result<()> {
             if let Some(m) = aoc.captures(&l?) {
                 let day = &m[1];
                 let part = &m[2];
-                let version = if m[3].is_empty() { "none" } else { &m[3] };
+                let version = if m[3].is_empty() { String::from("None") } else { format!("Some({})", &m[3]) };
+                let extension = if m[3].is_empty() { "none" } else { &m[3] };
                 refs.push(format!(
-                    "*crate::{}::RUNNER_{}_{}_{}",
+                    "crate::runners::register_runner({1}, {2}, {4}, || crate::{0}::runner_{1}_{2}_{3}());",
                     file.file_name()
                         .into_string()
                         .unwrap()
@@ -43,7 +46,8 @@ fn main() -> anyhow::Result<()> {
                         .unwrap(),
                     day,
                     part,
-                    version
+                    extension,
+                    version,
                 ));
             }
         }
