@@ -45,7 +45,7 @@ fn d3p1s(input: &str) -> String {
 
 #[aoc(day3, part1, bytes)]
 fn d3p1b(input: &[u8]) -> anyhow::Result<String> {
-    Ok(d3p1s(&std::str::from_utf8(input)?))
+    Ok(d3p1s(std::str::from_utf8(input)?))
 }
 
 #[aoc(day3, part1, u32)]
