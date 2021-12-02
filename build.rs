@@ -42,7 +42,7 @@ fn main() -> anyhow::Result<()> {
                 };
                 let extension = if m[3].is_empty() { "none" } else { &m[3] };
                 refs.push(format!(
-                    "crate::runners::register_runner({1}, {2}, {4}, || crate::{0}::runner_{1}_{2}_{3}());",
+                    "crate::runners::register_runner({1}, {2}, {4}, crate::{0}::runner_{1}_{2}_{3});",
                     file.file_name()
                         .into_string()
                         .unwrap()

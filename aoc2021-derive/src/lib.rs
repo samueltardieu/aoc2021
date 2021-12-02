@@ -74,7 +74,7 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
             "runner_{}_{}_{}",
             day,
             part,
-            version.clone().unwrap_or_else(|| String::from("none"))
+            version.unwrap_or_else(|| String::from("none"))
         ),
         func.sig.ident.span(),
     );
