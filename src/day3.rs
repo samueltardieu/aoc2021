@@ -1,10 +1,8 @@
 fn generator(input: &str) -> (usize, Vec<u32>) {
-    let lines = input.lines().collect::<Vec<_>>();
-    let width = lines[0].len();
     (
-        width,
-        lines
-            .into_iter()
+        input.lines().next().unwrap().len(),
+        input
+            .lines()
             .map(|l| u32::from_str_radix(l, 2).unwrap())
             .collect(),
     )
