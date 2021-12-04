@@ -1,8 +1,6 @@
 use pathfinding::prelude::Matrix;
 
-type Bingo = (Vec<u32>, Vec<Matrix<u32>>);
-
-fn generator(input: &str) -> Bingo {
+fn generator(input: &str) -> (Vec<u32>, Vec<Matrix<u32>>) {
     let mut lines = input.lines();
     let numbers = lines
         .next()
