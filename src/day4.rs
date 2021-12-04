@@ -57,7 +57,7 @@ fn solve(input: &str, is_part1: bool) -> u32 {
     for n in numbers {
         for (i, (g, f)) in grids.iter_mut().zip(found.iter_mut()).enumerate() {
             let mut score = 0;
-            for (gg, ff) in g.iter_mut().zip(f.iter_mut()) {
+            for (gg, ff) in g.values_mut().zip(f.values_mut()) {
                 if *gg == n {
                     *ff = true;
                 }
