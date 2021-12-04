@@ -9,6 +9,7 @@ aoc2021-derive = { path = "aoc2021-derive" }
 chrono = "0.4.19"
 itertools = "0.10.1"
 lazy_static = "1.4.0"
+pathfinding = "2.2.2"
 structopt = "0.3.25"
 
 [workspace]
