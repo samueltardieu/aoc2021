@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::{collections::HashMap, str::FromStr};
 
-type Point = (i32, i32);
+type Point = (i16, i16);
 struct Line {
     start: Point,
     end: Point,
