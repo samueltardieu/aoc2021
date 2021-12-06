@@ -5,7 +5,7 @@ use nom::{
     sequence::separated_pair,
     IResult,
 };
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, iter, str::FromStr};
 
 type Point = (i16, i16);
 struct Line {
@@ -23,14 +23,12 @@ impl Line {
             (self.end.0 - self.start.0).signum(),
             (self.end.1 - self.start.1).signum(),
         );
-        let (mut point, end) = (self.start, self.end);
-        std::iter::repeat_with(move || {
-            let r = point;
-            point = (point.0 + delta.0, point.1 + delta.1);
-            r
+        let end = self.end;
+        iter::successors(Some(self.start), move |p| {
+            Some((p.0 + delta.0, p.1 + delta.1))
         })
         .take_while(move |p| p != &end)
-        .chain(std::iter::once(self.end))
+        .chain(iter::once(self.end))
     }
 }
 
