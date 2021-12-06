@@ -1,11 +1,9 @@
 fn days(input: &str, days: usize) -> usize {
-    let mut fishes = [0usize; 9];
-    for f in input.trim().split(',').map(|s| s.parse::<usize>().unwrap()) {
-        fishes[f] += 1;
-    }
-    for d in 0..days {
-        fishes[(d + 7) % 9] += fishes[d % 9];
-    }
+    let mut fishes = input.trim().split(',').fold([0usize; 9], |mut fishes, s| {
+        fishes[s.parse::<usize>().unwrap()] += 1;
+        fishes
+    });
+    (0..days).for_each(|d| fishes[(d + 7) % 9] += fishes[d % 9]);
     fishes.into_iter().sum()
 }
 
