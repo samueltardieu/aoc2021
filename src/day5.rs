@@ -1,6 +1,10 @@
-use anyhow::{format_err, Error, Result};
-use lazy_static::lazy_static;
-use regex::Regex;
+use anyhow::Result;
+use nom::{
+    bytes::complete::tag,
+    character::complete::{char, i16},
+    sequence::separated_pair,
+    IResult,
+};
 use std::{collections::HashMap, str::FromStr};
 
 type Point = (i16, i16);
@@ -30,20 +34,17 @@ impl Line {
     }
 }
 
-impl FromStr for Line {
-    type Err = Error;
+fn parse_point(input: &str) -> IResult<&str, Point> {
+    separated_pair(i16, char(','), i16)(input)
+}
 
-    fn from_str(s: &str) -> Result<Self> {
-        lazy_static! {
-            static ref LINE_RE: Regex = Regex::new(r"^(\d+),(\d+) -> (\d+),(\d+)$").unwrap();
-        }
-        let m = LINE_RE
-            .captures(s)
-            .ok_or_else(|| format_err!("unable to parse {}", s))?;
-        Ok(Line {
-            start: (m[1].parse()?, m[2].parse()?),
-            end: (m[3].parse()?, m[4].parse()?),
-        })
+impl FromStr for Line {
+    type Err = nom::Err<nom::error::Error<String>>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        separated_pair(parse_point, tag(" -> "), parse_point)(s)
+            .map(|(_, (start, end))| Line { start, end })
+            .map_err(|e| e.to_owned())
     }
 }
 
