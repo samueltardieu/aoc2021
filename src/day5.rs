@@ -2,8 +2,9 @@ use anyhow::Result;
 use nom::{
     bytes::complete::tag,
     character::complete::{char, i16},
+    error::Error,
     sequence::separated_pair,
-    IResult,
+    Finish, IResult,
 };
 use std::{collections::HashMap, iter, str::FromStr};
 
@@ -37,12 +38,13 @@ fn parse_point(input: &str) -> IResult<&str, Point> {
 }
 
 impl FromStr for Line {
-    type Err = nom::Err<nom::error::Error<String>>;
+    type Err = nom::error::Error<String>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        separated_pair(parse_point, tag(" -> "), parse_point)(s)
-            .map(|(_, (start, end))| Line { start, end })
-            .map_err(|e| e.to_owned())
+        match separated_pair(parse_point, tag(" -> "), parse_point)(s).finish() {
+            Ok((_, (start, end))) => Ok(Line { start, end }),
+            Err(Error { input, code }) => Err(Error::new(input.to_owned(), code)),
+        }
     }
 }
 
