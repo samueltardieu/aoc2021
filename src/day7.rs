@@ -1,12 +1,3 @@
-fn median(v: &mut Vec<i32>) -> i32 {
-    v.sort_unstable();
-    if v.len() % 2 == 1 {
-        v[v.len() / 2]
-    } else {
-        (v[v.len() / 2 - 1] + v[v.len() / 2]) / 2
-    }
-}
-
 fn parse(input: &str) -> Vec<i32> {
     input
         .trim()
@@ -25,16 +16,16 @@ fn part1(input: &str) -> i32 {
 #[aoc(day7, part2)]
 fn part2(input: &str) -> i32 {
     let pos = parse(input);
-    let mut target = pos.iter().sum::<i32>() / pos.len() as i32;
-    let mut fuel = cost(&pos, target);
-    let dir = (fuel - cost(&pos, target + 1)).signum();
-    loop {
-        let new_fuel = cost(&pos, target + dir);
-        if new_fuel >= fuel {
-            return fuel as i32;
-        }
-        target += dir;
-        fuel = new_fuel;
+    let mean = pos.iter().sum::<i32>() / pos.len() as i32;
+    (-1..=1).map(|d| (cost(&pos, mean + d))).min().unwrap()
+}
+
+fn median(v: &mut Vec<i32>) -> i32 {
+    v.sort_unstable();
+    if v.len() % 2 == 1 {
+        v[v.len() / 2]
+    } else {
+        (v[v.len() / 2 - 1] + v[v.len() / 2]) / 2
     }
 }
 
