@@ -1,6 +1,4 @@
 use anyhow::Result;
-use std::fs::File;
-use std::io::Read;
 use std::str::FromStr;
 
 pub fn input_bytes(day: usize) -> Result<Vec<u8>> {
@@ -8,9 +6,7 @@ pub fn input_bytes(day: usize) -> Result<Vec<u8>> {
         Some(s) => s.clone(),
         None => format!("input/day{}.txt", day),
     };
-    let mut res = Vec::new();
-    File::open(filename)?.read_to_end(&mut res)?;
-    Ok(res)
+    Ok(std::fs::read(filename)?)
 }
 
 pub fn input_string(day: usize) -> Result<String> {
