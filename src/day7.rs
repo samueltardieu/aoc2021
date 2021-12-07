@@ -7,25 +7,25 @@ fn median(v: &mut Vec<i32>) -> i32 {
     }
 }
 
-fn parse(input: &str) -> (Vec<i32>, i32) {
-    let mut pos = input
+fn parse(input: &str) -> Vec<i32> {
+    input
         .trim()
         .split(',')
         .map(|s| s.parse::<i32>().unwrap())
-        .collect::<Vec<_>>();
-    let median = median(&mut pos);
-    (pos, median)
+        .collect::<Vec<_>>()
 }
 
 #[aoc(day7, part1)]
 fn part1(input: &str) -> i32 {
-    let (pos, target) = parse(input);
+    let mut pos = parse(input);
+    let target = median(&mut pos);
     pos.into_iter().map(|p| (p - target).abs()).sum()
 }
 
 #[aoc(day7, part2)]
 fn part2(input: &str) -> i32 {
-    let (pos, mut target) = parse(input);
+    let pos = parse(input);
+    let mut target = pos.iter().sum::<i32>() / pos.len() as i32;
     let mut fuel = cost(&pos, target);
     let dir = (fuel - cost(&pos, target + 1)).signum();
     loop {
