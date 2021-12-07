@@ -17,11 +17,7 @@ fn part1(input: &str) -> i32 {
 fn part2(input: &str) -> i32 {
     let pos = parse(input);
     let mean = pos.iter().sum::<i32>() as f32 / pos.len() as f32;
-    [mean.floor() as i32, mean.ceil() as i32]
-        .into_iter()
-        .map(|target| (cost(&pos, target)))
-        .min()
-        .unwrap()
+    cost(&pos, mean.floor() as i32).min(cost(&pos, mean.ceil() as i32))
 }
 
 fn median(v: &mut Vec<i32>) -> i32 {
