@@ -16,8 +16,8 @@ fn part1(input: &str) -> i32 {
 #[aoc(day7, part2)]
 fn part2(input: &str) -> i32 {
     let pos = parse(input);
-    let mean = pos.iter().sum::<i32>() as f32 / pos.len() as f32;
-    cost(&pos, mean.floor() as i32).min(cost(&pos, mean.ceil() as i32))
+    let mean = pos.iter().sum::<i32>() / pos.len() as i32;
+    cost(&pos, mean).min(cost(&pos, mean + 1))
 }
 
 fn median(v: &mut Vec<i32>) -> i32 {
