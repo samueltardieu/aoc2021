@@ -19,3 +19,5 @@ members = ["aoc2021-derive"]
 [build-dependencies]
 anyhow = "1.0.51"
 regex = "1.5.4"
+
+[features]
