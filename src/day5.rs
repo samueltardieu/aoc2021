@@ -48,14 +48,11 @@ impl FromStr for Line {
     }
 }
 
-fn parse(input: &str) -> impl Iterator<Item = Line> + '_ {
-    input.lines().map(|l| l.parse().unwrap())
-}
-
 #[aoc(day5, part1)]
-fn part1(input: &str) -> Result<usize> {
+fn part1(input: Vec<Line>) -> Result<usize> {
     let mut points = HashMap::new();
-    parse(input)
+    input
+        .into_iter()
         .filter(Line::is_straight)
         .flat_map(|l| l.points())
         .for_each(|p| *points.entry(p).or_insert(0) += 1);
@@ -63,9 +60,10 @@ fn part1(input: &str) -> Result<usize> {
 }
 
 #[aoc(day5, part2)]
-fn part2(input: &str) -> Result<usize> {
+fn part2(input: Vec<Line>) -> Result<usize> {
     let mut points = HashMap::new();
-    parse(input)
+    input
+        .into_iter()
         .flat_map(|l| l.points())
         .for_each(|p| *points.entry(p).or_insert(0) += 1);
     Ok(points.values().filter(|v| **v > 1).count())

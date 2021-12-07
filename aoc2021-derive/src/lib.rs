@@ -3,13 +3,15 @@ use proc_macro_error::{abort, proc_macro_error};
 use quote::{quote, ToTokens};
 use syn::{
     parse::{Parse, ParseStream},
-    parse_macro_input, FnArg, Ident, ItemFn, PatType, ReturnType, Token,
+    parse_macro_input, FnArg, Ident, ItemFn, LitChar, PatType, ReturnType, Token,
 };
 
+#[derive(Default)]
 struct AocEntry {
     day: usize,
     part: usize,
     version: Option<String>,
+    separator: Option<char>,
 }
 
 impl Parse for AocEntry {
@@ -51,12 +53,22 @@ impl Parse for AocEntry {
                 ))
             }
         };
-        let version = input
-            .parse::<Option<Token![,]>>()?
-            .map(|_| input.parse::<Ident>())
-            .transpose()?
-            .map(|i| i.to_string());
-        Ok(AocEntry { day, part, version })
+        let mut entry = AocEntry {
+            day,
+            part,
+            ..Default::default()
+        };
+        while !input.is_empty() {
+            <Token![,]>::parse(input)?;
+            match input.parse::<Ident>()?.to_string().as_str() {
+                "separator" => {
+                    <Token![=]>::parse(input)?;
+                    entry.separator = Some(LitChar::parse(input)?.value());
+                }
+                i => entry.version = Some(i.to_owned()),
+            }
+        }
+        Ok(entry)
     }
 }
 
@@ -78,14 +90,39 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
         ),
         func.sig.ident.span(),
     );
+    let sep = match aoc_entry.separator {
+        Some(sep) => quote!(Some(#sep)),
+        None => quote!(None),
+    };
     let inputs = match func.sig.inputs.first() {
-        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& str") => {
-            quote!((&crate::input::input_string(#day)?))
-        }
         Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& [u8]") => {
             quote!((&crate::input::input_bytes(#day)?))
         }
-        Some(_) => quote!((&crate::input::parse_lines(&crate::input::input_string(#day)?)?)),
+        Some(FnArg::Typed(PatType { ty, .. }))
+            if quote!(#ty).to_string().contains("Vec < & str >") =>
+        {
+            quote!((crate::input::input_string(#day)?.lines().collect()))
+        }
+        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& [& str]") => {
+            quote!((&crate::input::input_string(#day)?.lines().collect::<Vec<_>>()))
+        }
+        Some(FnArg::Typed(PatType { ty, .. }))
+            if quote!(#ty).to_string().contains("& mut [& str]") =>
+        {
+            quote!((&mut crate::input::input_string(#day)?.lines().collect::<Vec<_>>()))
+        }
+        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& str") => {
+            quote!((&crate::input::input_string(#day)?))
+        }
+        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("Vec <") => {
+            quote!((crate::input::parse_input(&crate::input::input_string(#day)?, #sep)?))
+        }
+        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& mut [") => {
+            quote!((&mut crate::input::parse_input(&crate::input::input_string(#day)?, #sep)?))
+        }
+        Some(_) => {
+            quote!((&crate::input::parse_input(&crate::input::input_string(#day)?, #sep)?))
+        }
         None => quote!(()),
     };
     let (call, ty) = match func.sig.output {
