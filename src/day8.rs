@@ -28,34 +28,19 @@ fn handle_line(line: &str) -> usize {
         .split(' ')
         .map(|s| s.bytes().collect::<BTreeSet<_>>())
         .collect::<Vec<_>>();
-    let one = patterns.iter().find(|p| p.len() == 2).unwrap();
-    let seven = patterns.iter().find(|p| p.len() == 3).unwrap();
-    let four = patterns.iter().find(|p| p.len() == 4).unwrap();
-    let eight = patterns.iter().find(|p| p.len() == 7).unwrap();
-    let three = patterns
-        .iter()
-        .find(|p| p.len() == 5 && p.intersection(one).count() == 2)
-        .unwrap();
-    let five = patterns
-        .iter()
-        .find(|p| p.len() == 5 && p != &three && p.intersection(four).count() == 3)
-        .unwrap();
-    let two = patterns
-        .iter()
-        .find(|p| p.len() == 5 && p != &three && p != &five)
-        .unwrap();
-    let nine = patterns
-        .iter()
-        .find(|p| p.len() == 6 && p.intersection(three).count() == 5)
-        .unwrap();
-    let zero = patterns
-        .iter()
-        .find(|p| p.len() == 6 && p != &nine && p.intersection(one).count() == 2)
-        .unwrap();
-    let six = patterns
-        .iter()
-        .find(|p| p.len() == 6 && p != &nine && p != &zero)
-        .unwrap();
+    let find = |len, cond: &dyn Fn(&BTreeSet<u8>) -> bool| {
+        patterns.iter().find(|p| p.len() == len && cond(p)).unwrap()
+    };
+    let one = find(2, &|_| true);
+    let seven = find(3, &|_| true);
+    let four = find(4, &|_| true);
+    let eight = find(7, &|_| true);
+    let three = find(5, &|p| p.intersection(one).count() == 2);
+    let five = find(5, &|p| p != three && p.intersection(four).count() == 3);
+    let two = find(5, &|p| p != three && p != five);
+    let nine = find(6, &|p| p.intersection(three).count() == 5);
+    let zero = find(6, &|p| p != nine && p.intersection(one).count() == 2);
+    let six = find(6, &|p| p != nine && p != zero);
     let patterns = [zero, one, two, three, four, five, six, seven, eight, nine];
     cs.split(' ')
         .map(|s| {
