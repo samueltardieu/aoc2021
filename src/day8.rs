@@ -10,8 +10,7 @@ fn part1(input: &str) -> usize {
                 .unwrap()
                 .1
                 .split(' ')
-                .map(|s| s.len())
-                .filter(|&l| l == 2 || l == 3 || l == 4 || l == 7)
+                .filter(|s| !(5..=6).contains(&s.len()))
                 .count()
         })
         .sum()
