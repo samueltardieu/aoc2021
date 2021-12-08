@@ -62,9 +62,5 @@ fn handle_line(line: &str) -> usize {
             let c = s.bytes().collect::<BTreeSet<_>>();
             patterns.iter().find_position(|p| p == &&&c).unwrap().0
         })
-        .scan(10000usize, |state, d| {
-            *state /= 10;
-            Some(*state * d)
-        })
-        .sum()
+        .fold(0, |s, d| s * 10 + d)
 }
