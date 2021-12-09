@@ -26,7 +26,7 @@ fn part2(input: &str) -> usize {
             })
             .count()
         })
-        .sorted_unstable_by_key(|&n| std::cmp::Reverse(n))
+        .sorted_unstable_by(|a, b| b.cmp(a))
         .take(3)
         .product()
 }
