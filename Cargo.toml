@@ -10,7 +10,7 @@ chrono = "0.4.19"
 itertools = "0.10.1"
 lazy_static = "1.4.0"
 nom = "7.1.0"
-pathfinding = "3.0.2"
+pathfinding = "3.0.3"
 structopt = "0.3.25"
 
 [workspace]

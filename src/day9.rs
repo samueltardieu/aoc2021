@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use pathfinding::prelude::{bfs_reach, Matrix};
+use pathfinding::prelude::Matrix;
 
 fn lows(m: &Matrix<u8>) -> impl Iterator<Item = (usize, usize)> + '_ {
     m.indices()
@@ -16,14 +16,7 @@ fn part1(input: &str) -> u32 {
 fn part2(input: &str) -> usize {
     let m = input.lines().map(|c| c.bytes()).collect();
     lows(&m)
-        .map(|n| {
-            bfs_reach(n, |&n| {
-                m.neighbours(n, false)
-                    .filter(|&k| m[k] != b'9' && m[k] > m[n])
-                    .collect_vec()
-            })
-            .count()
-        })
+        .map(|n| m.reachable(n, false, |k| m[k] != b'9' && m[k] > m[n]).len())
         .sorted_unstable_by(|a, b| b.cmp(a))
         .take(3)
         .product()
