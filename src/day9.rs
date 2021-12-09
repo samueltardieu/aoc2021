@@ -2,10 +2,7 @@ use itertools::{iproduct, Itertools};
 use pathfinding::prelude::{bfs_reach, Matrix};
 
 fn lows(m: &Matrix<u8>) -> impl Iterator<Item = (usize, usize)> + '_ {
-    iproduct!(0..m.rows, 0..m.columns).filter(|k| {
-        let v = m[k];
-        m.neighbours(k, false).all(|n| m[&n] > v)
-    })
+    iproduct!(0..m.rows, 0..m.columns).filter(|k| m.neighbours(k, false).all(|n| m[&n] > m[k]))
 }
 
 #[aoc(day9, part1)]
