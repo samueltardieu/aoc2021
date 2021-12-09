@@ -27,7 +27,7 @@ fn generator(input: &str) -> (Vec<u32>, Vec<Matrix<u32>>) {
 
 fn is_complete(m: &Matrix<bool>) -> bool {
     for r in 0..5 {
-        if (0..5).map(|c| m[&(r, c)]).all(|b| b) || (0..5).map(|c| m[&(c, r)]).all(|b| b) {
+        if (0..5).map(|c| m[(r, c)]).all(|b| b) || (0..5).map(|c| m[(c, r)]).all(|b| b) {
             return true;
         }
     }
