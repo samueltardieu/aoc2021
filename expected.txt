@@ -14,3 +14,5 @@ Day 7 - part 1: 343441
 Day 7 - part 2: 98925151
 Day 8 - part 1: 525
 Day 8 - part 2: 1083859
+Day 9 - part 1: 580
+Day 9 - part 2: 856716
