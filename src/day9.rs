@@ -7,13 +7,13 @@ fn lows(m: &Matrix<u8>) -> impl Iterator<Item = (usize, usize)> + '_ {
 
 #[aoc(day9, part1)]
 fn part1(input: &str) -> u32 {
-    let m = Matrix::from_rows(input.lines().map(|c| c.bytes())).unwrap();
+    let m = input.lines().map(|c| c.bytes()).collect();
     lows(&m).map(|k| (m[&k] - b'0') as u32 + 1).sum()
 }
 
 #[aoc(day9, part2)]
 fn part2(input: &str) -> usize {
-    let m = Matrix::from_rows(input.lines().map(|c| c.bytes())).unwrap();
+    let m = input.lines().map(|c| c.bytes()).collect();
     lows(&m)
         .map(|n| {
             bfs_reach(n, |n| {

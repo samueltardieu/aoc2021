@@ -10,19 +10,17 @@ fn generator(input: &str) -> (Vec<u32>, Vec<Matrix<u32>>) {
         .collect::<Vec<_>>();
     let mut grids = Vec::new();
     while let Some(_empty) = lines.next() {
-        let mut m = Matrix::new(5, 5, 0);
-        for r in 0..5 {
-            for (c, x) in lines
-                .next()
-                .unwrap()
-                .split_whitespace()
-                .map(|s| s.parse().unwrap())
-                .enumerate()
-            {
-                m[&(r, c)] = x;
-            }
-        }
-        grids.push(m);
+        grids.push(
+            (0..5)
+                .map(|_| {
+                    lines
+                        .next()
+                        .unwrap()
+                        .split_whitespace()
+                        .map(|s| s.parse().unwrap())
+                })
+                .collect(),
+        );
     }
     (numbers, grids)
 }
