@@ -21,7 +21,7 @@ fn syntax_error_score(line: &str) -> u64 {
             c => stack.push(c),
         }
     }
-    return 0;
+    0
 }
 
 fn incomplete_score(line: &str) -> Option<usize> {
