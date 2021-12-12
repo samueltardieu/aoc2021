@@ -12,14 +12,12 @@ fn generator(input: &str) -> HashMap<&str, Vec<&str>> {
 
 #[aoc(day12, part1)]
 fn part1(input: &str) -> usize {
-    let successors = generator(input);
-    paths("start", &successors, &mut BTreeSet::new(), false)
+    paths("start", &generator(input), &mut BTreeSet::new(), false)
 }
 
 #[aoc(day12, part2)]
 fn part2(input: &str) -> usize {
-    let successors = generator(input);
-    paths("start", &successors, &mut BTreeSet::new(), true)
+    paths("start", &generator(input), &mut BTreeSet::new(), true)
 }
 
 fn paths<'a>(
