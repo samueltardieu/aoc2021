@@ -26,7 +26,7 @@ fn part1(input: &str) -> usize {
 #[aoc(day13, part2)]
 fn part2(input: &str) -> String {
     let (grid, ins) = generator(input);
-    format!("\n{:#?}", ins.fold(grid, fold))
+    format!("{:#?}", ins.fold(grid, fold))
 }
 
 fn fold(grid: Grid, (axis, n): (u8, usize)) -> Grid {

@@ -1,6 +1,8 @@
 use anyhow::bail;
 use aoc2021::runners;
 use chrono::{Datelike, Duration};
+use itertools::Itertools;
+use std::iter;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -67,14 +69,16 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     String::new()
                 };
-                println!(
-                    "Day {} - part {}{}: {}{}",
-                    day,
-                    part,
-                    version,
-                    result.unwrap_or_else(|e| format!("<error: {:?}>", e)),
-                    elapsed
+                let header = format!("Day {} - part {}{}: ", day, part, version);
+                let sep = format!(
+                    "\n{}",
+                    iter::repeat(' ').take(header.len()).collect::<String>()
                 );
+                let result = match result {
+                    Ok(e) => e.lines().join(&sep),
+                    Err(e) => format!("<error: {:?}>", e),
+                };
+                println!("{}{}{}", header, result, elapsed);
             }
         }
     }
