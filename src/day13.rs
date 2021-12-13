@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use pathfinding::prelude::Grid;
 
-fn generator(input: &str) -> (Grid, Vec<(u8, usize)>) {
+fn generator(input: &str) -> (Grid, impl Iterator<Item = (u8, usize)> + '_) {
     let mut lines = input.lines();
     let grid = lines
         .take_while_ref(|line| !line.is_empty())
@@ -10,26 +10,23 @@ fn generator(input: &str) -> (Grid, Vec<(u8, usize)>) {
             (x.parse().unwrap(), y.parse().unwrap())
         })
         .collect();
-    let ins = lines
-        .skip(1)
-        .map(|line| {
-            let (left, right) = line.split_once('=').unwrap();
-            (left.bytes().rev().next().unwrap(), right.parse().unwrap())
-        })
-        .collect();
+    let ins = lines.skip(1).map(|line| {
+        let (left, right) = line.split_once('=').unwrap();
+        (left.bytes().rev().next().unwrap(), right.parse().unwrap())
+    });
     (grid, ins)
 }
 
 #[aoc(day13, part1)]
 fn part1(input: &str) -> usize {
-    let (grid, ins) = generator(input);
-    fold(grid, ins[0]).vertices_len()
+    let (grid, mut ins) = generator(input);
+    fold(grid, ins.next().unwrap()).vertices_len()
 }
 
 #[aoc(day13, part2)]
 fn part2(input: &str) -> String {
     let (grid, ins) = generator(input);
-    format!("\n{:?}", ins.into_iter().fold(grid, fold))
+    format!("\n{:?}", ins.fold(grid, fold))
 }
 
 fn fold(grid: Grid, (axis, n): (u8, usize)) -> Grid {
