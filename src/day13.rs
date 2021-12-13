@@ -29,20 +29,18 @@ fn part1(input: &str) -> usize {
 #[aoc(day13, part2)]
 fn part2(input: &str) -> String {
     let (grid, ins) = generator(input);
-    format!("\n{:?}", ins.into_iter().fold(grid, |g, i| fold(g, i)))
+    format!("\n{:?}", ins.into_iter().fold(grid, fold))
 }
 
 fn fold(grid: Grid, (axis, n): (u8, usize)) -> Grid {
     let absdiff = |x: usize, y: usize| x.max(y) - x.min(y);
     if axis == b'x' {
-        let offset = grid.width.saturating_sub(n * 2 + 1);
         grid.iter()
-            .filter_map(|(x, y)| (x != n).then(|| (offset + n - absdiff(n, x), y)))
+            .filter_map(|(x, y)| (x != n).then(|| (n - absdiff(n, x), y)))
             .collect()
     } else {
-        let offset = grid.height.saturating_sub(n * 2 + 1);
         grid.iter()
-            .filter_map(|(x, y)| (y != n).then(|| (x, offset + n - absdiff(n, y))))
+            .filter_map(|(x, y)| (y != n).then(|| (x, n - absdiff(n, y))))
             .collect()
     }
 }
