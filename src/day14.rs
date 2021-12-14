@@ -3,33 +3,26 @@ use std::collections::BTreeMap;
 type Template = BTreeMap<(u8, u8), usize>;
 type Rules = BTreeMap<(u8, u8), u8>;
 
-fn generator(input: &str) -> (Template, Rules) {
-    let mut lines = input.lines();
+fn generator(input: &[&[u8]]) -> (Template, Rules) {
     let mut template = Template::new();
-    lines
-        .next()
-        .unwrap()
-        .as_bytes()
+    input[0]
         .windows(2)
         .for_each(|w| *template.entry((w[0], w[1])).or_insert(0) += 1);
-    let rules = lines
-        .skip(1)
-        .map(|l| {
-            let l = l.as_bytes();
-            ((l[0], l[1]), l[l.len() - 1])
-        })
+    let rules = input[2..]
+        .iter()
+        .map(|l| ((l[0], l[1]), l[l.len() - 1]))
         .collect();
     (template, rules)
 }
 
 #[aoc(day14, part1)]
-fn part1(input: &str) -> usize {
+fn part1(input: &[&[u8]]) -> usize {
     let (template, rules) = generator(input);
     max_diff(&(0..10).fold(template, |t, _| step(&t, &rules)))
 }
 
 #[aoc(day14, part2)]
-fn part2(input: &str) -> usize {
+fn part2(input: &[&[u8]]) -> usize {
     let (template, rules) = generator(input);
     max_diff(&(0..40).fold(template, |t, _| step(&t, &rules)))
 }

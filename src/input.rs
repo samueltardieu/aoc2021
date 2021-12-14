@@ -32,3 +32,13 @@ where
             .collect::<std::result::Result<Vec<T>, _>>()?),
     }
 }
+
+pub fn parse_input_bytes(input: &[u8], sep: Option<u8>) -> Result<Vec<&[u8]>> {
+    let sep = sep.unwrap_or(b'\n');
+    let input = if input[input.len() - 1] == sep {
+        &input[..input.len() - 1]
+    } else {
+        input
+    };
+    Ok(input.split(|&b| b == sep).collect())
+}

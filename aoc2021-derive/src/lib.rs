@@ -95,8 +95,15 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
         None => quote!(None),
     };
     let inputs = match func.sig.inputs.first() {
-        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& [u8]") => {
-            quote!((&crate::input::input_bytes(#day)?))
+        Some(FnArg::Typed(PatType { ty, .. }))
+            if quote!(#ty).to_string().contains("Vec < & [u8] >") =>
+        {
+            quote!((crate::input::parse_input_bytes(&crate::input::input_bytes(#day)?, #sep.map(|c: char| c as u8))?))
+        }
+        Some(FnArg::Typed(PatType { ty, .. }))
+            if quote!(#ty).to_string().contains("& [& [u8]]") =>
+        {
+            quote!((&crate::input::parse_input_bytes(&crate::input::input_bytes(#day)?, #sep.map(|c: char| c as u8))?))
         }
         Some(FnArg::Typed(PatType { ty, .. }))
             if quote!(#ty).to_string().contains("Vec < & str >") =>
@@ -113,6 +120,9 @@ pub fn aoc(attr: TokenStream, input: TokenStream) -> TokenStream {
         }
         Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& str") => {
             quote!((&crate::input::input_string(#day)?))
+        }
+        Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("& [u8]") => {
+            quote!((&crate::input::input_bytes(#day)?))
         }
         Some(FnArg::Typed(PatType { ty, .. })) if quote!(#ty).to_string().contains("Vec <") => {
             quote!((crate::input::parse_input(&crate::input::input_string(#day)?, #sep)?))
