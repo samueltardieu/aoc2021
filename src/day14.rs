@@ -38,7 +38,6 @@ fn max_diff(template: &Template) -> usize {
         *elems.entry(b).or_insert(0) += n;
     }
     (elems.values().max().unwrap() + 1) / 2 - (elems.values().min().unwrap() + 1) / 2
-    // start and end are odd
 }
 
 fn step(template: &Template, rules: &Rules) -> Template {
