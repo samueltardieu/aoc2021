@@ -21,17 +21,14 @@ fn generator(input: &str) -> (Template, Rules) {
 
 #[aoc(day14, part1)]
 fn part1(input: &str) -> usize {
-    part(input, 10)
+    let (template, rules) = generator(input);
+    max_diff(&(0..10).fold(template, |t, _| step(&t, &rules)))
 }
 
 #[aoc(day14, part2)]
 fn part2(input: &str) -> usize {
-    part(input, 40)
-}
-
-fn part(input: &str, steps: usize) -> usize {
     let (template, rules) = generator(input);
-    max_diff(&(0..steps).fold(template, |t, _| step(&t, &rules)))
+    max_diff(&(0..40).fold(template, |t, _| step(&t, &rules)))
 }
 
 fn max_diff(template: &Template) -> usize {
@@ -40,7 +37,8 @@ fn max_diff(template: &Template) -> usize {
         *elems.entry(a).or_insert(0) += n;
         *elems.entry(b).or_insert(0) += n;
     }
-    (elems.values().max().unwrap() + 1) / 2 - (elems.values().min().unwrap() + 1) / 2 // start and end are odd
+    (elems.values().max().unwrap() + 1) / 2 - (elems.values().min().unwrap() + 1) / 2
+    // start and end are odd
 }
 
 fn step(template: &Template, rules: &Rules) -> Template {
