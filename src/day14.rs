@@ -5,10 +5,13 @@ type Rules = BTreeMap<(u8, u8), u8>;
 
 fn generator(input: &str) -> (Template, Rules) {
     let mut lines = input.lines();
-    let line = lines.next().unwrap().as_bytes();
-    let template = (0..line.len() - 1)
-        .map(|i| ((line[i], line[i + 1]), 1usize))
-        .collect::<BTreeMap<_, _>>();
+    let mut template = Template::new();
+    lines
+        .next()
+        .unwrap()
+        .as_bytes()
+        .windows(2)
+        .for_each(|w| *template.entry((w[0], w[1])).or_insert(0) += 1);
     let rules = lines
         .skip(1)
         .map(|l| {
