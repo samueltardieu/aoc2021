@@ -40,8 +40,7 @@ fn max_diff(template: &Template) -> usize {
         *elems.entry(a).or_insert(0) += n;
         *elems.entry(b).or_insert(0) += n;
     }
-    elems.values_mut().for_each(|v| *v = (*v + 1) / 2); // only start and end are odd
-    elems.values().max().unwrap() - elems.values().min().unwrap()
+    (elems.values().max().unwrap() + 1) / 2 - (elems.values().min().unwrap() + 1) / 2 // start and end are odd
 }
 
 fn step(template: &Template, rules: &Rules) -> Template {
