@@ -1,4 +1,5 @@
-use std::{convert::Infallible, str::FromStr};
+use nom::{bits::complete as bits, multi, sequence, Finish, IResult};
+use std::str::FromStr;
 
 enum Packet {
     Literal(u8, u64),
@@ -6,32 +7,44 @@ enum Packet {
 }
 
 impl Packet {
-    fn new(it: &mut DataIterator) -> Self {
-        let version = it.bits(3) as u8;
-        match it.bits(3) {
-            4 => Self::new_number(version, it),
-            type_id => Self::new_operator(version, it, type_id as u8),
+    fn parse(input: (&[u8], usize)) -> IResult<(&[u8], usize), Self> {
+        match sequence::tuple((bits::take(3usize), bits::take(3usize)))(input)? {
+            (input, (version, 4u8)) => Self::parse_number(input, version),
+            (input, (version, op)) => Self::parse_operator(input, version, op),
         }
     }
 
-    fn new_number(version: u8, it: &mut DataIterator) -> Self {
-        let mut n = 0;
-        while it.next().unwrap() {
-            n = (n | it.bits(4)) << 4;
-        }
-        Packet::Literal(version, n | it.bits(4))
+    fn parse_number(input: (&[u8], usize), version: u8) -> IResult<(&[u8], usize), Self> {
+        let (input, n) = multi::fold_many0(
+            sequence::tuple((bits::tag(1, 1usize), bits::take(4usize))),
+            || 0,
+            |n, (_, x): (_, u64)| (n << 4) | x,
+        )(input)?;
+        let (input, (_, x)): (_, (_, u64)) =
+            sequence::tuple((bits::tag(0, 1usize), bits::take(4usize)))(input)?;
+        Ok((input, Packet::Literal(version, (n << 4) | x)))
     }
 
-    fn new_operator(version: u8, it: &mut DataIterator, type_id: u8) -> Self {
-        let packets = if it.bits(1) == 0 {
-            let next_index = it.bits(15) as usize + it.index;
-            std::iter::from_fn(|| (it.index < next_index).then(|| Packet::new(it))).collect()
-        } else {
-            (0..(it.bits(11) as usize))
-                .map(|_| Packet::new(it))
-                .collect()
+    fn parse_operator(input: (&[u8], usize), version: u8, op: u8) -> IResult<(&[u8], usize), Self> {
+        let (input, packets) = match bits::take(1usize)(input)? {
+            (input, 0) => {
+                let (mut input, len): (_, usize) = bits::take(15usize)(input)?;
+                let limit = input.0.len() * 8 - input.1 - len;
+                let packets = std::iter::from_fn(|| {
+                    (input.0.len() * 8 - input.1 > limit).then(|| {
+                        let (rest, packet) = Self::parse(input)?;
+                        input = rest;
+                        Ok(packet)
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+                (input, packets)
+            }
+            (input, _) => {
+                multi::length_count(bits::take::<_, usize, _, _>(11usize), Self::parse)(input)?
+            }
         };
-        Packet::Operator(version, type_id, packets)
+        Ok((input, Packet::Operator(version, op, packets)))
     }
 
     fn version_sum(&self) -> u32 {
@@ -58,19 +71,8 @@ impl Packet {
     }
 }
 
-struct DataIterator {
-    data: Vec<u8>,
-    index: usize,
-}
-
-impl DataIterator {
-    fn bits(&mut self, len: usize) -> u64 {
-        (0..len).fold(0, |r, _| (r << 1) | self.next().unwrap() as u64)
-    }
-}
-
-impl FromStr for DataIterator {
-    type Err = Infallible;
+impl FromStr for Packet {
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut data = Vec::with_capacity((s.len() + 1) / 2);
@@ -82,27 +84,19 @@ impl FromStr for DataIterator {
                     as u8,
             );
         }
-        Ok(DataIterator { data, index: 0 })
-    }
-}
-
-impl Iterator for DataIterator {
-    type Item = bool;
-    fn next(&mut self) -> Option<Self::Item> {
-        (self.index < self.data.len() * 8).then(|| {
-            let r = self.data[self.index / 8] & (0x80 >> (self.index % 8)) != 0;
-            self.index += 1;
-            r
-        })
+        let r = nom::bits::bits(Packet::parse)(&data);
+        r.finish()
+            .map(|(_, p)| p)
+            .map_err(|e: nom::error::Error<_>| anyhow::anyhow!("parsing error: {:?}", e))
     }
 }
 
 #[aoc(day16, part1)]
-fn part1(input: &str) -> u32 {
-    Packet::new(&mut DataIterator::from_str(input.trim()).unwrap()).version_sum()
+fn part1(input: &str) -> anyhow::Result<u32> {
+    Ok(Packet::from_str(input.trim())?.version_sum())
 }
 
 #[aoc(day16, part2)]
-fn part2(input: &str) -> u64 {
-    Packet::new(&mut DataIterator::from_str(input.trim()).unwrap()).eval()
+fn part2(input: &str) -> anyhow::Result<u64> {
+    Ok(Packet::from_str(input.trim())?.eval())
 }
