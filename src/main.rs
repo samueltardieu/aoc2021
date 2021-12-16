@@ -16,7 +16,7 @@ struct Opts {
     #[structopt(short, long, help = "Show timing information")]
     timing: bool,
 
-    #[structopt(short, long, help = "Use alternate input")]
+    #[structopt(short, long, help = "Use alternate input (file or string)")]
     input: Option<String>,
 }
 

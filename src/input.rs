@@ -2,11 +2,14 @@ use anyhow::Result;
 use std::str::FromStr;
 
 pub fn input_bytes(day: usize) -> Result<Vec<u8>> {
-    let filename = match { unsafe { &super::OVERRIDE_INPUT } } {
-        Some(s) => s.clone(),
-        None => format!("input/day{}.txt", day),
-    };
-    Ok(std::fs::read(filename)?)
+    match { unsafe { &super::OVERRIDE_INPUT } } {
+        Some(s) => Ok(std::fs::read(&s).unwrap_or_else(|_| {
+            let mut s = s.as_bytes().to_vec();
+            s.push(b'\n');
+            s
+        })),
+        None => Ok(std::fs::read(format!("input/day{}.txt", day))?),
+    }
 }
 
 pub fn input_string(day: usize) -> Result<String> {
