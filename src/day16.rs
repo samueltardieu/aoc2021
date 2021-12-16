@@ -1,63 +1,28 @@
 use std::{convert::Infallible, str::FromStr};
 
-struct Packet {
-    version: u8,
-    payload: Payload,
+enum Packet {
+    Literal(u8, u64),
+    Operator(u8, u8, Vec<Packet>),
 }
 
 impl Packet {
     fn new(it: &mut DataIterator) -> Self {
-        Packet {
-            version: it.bits(3) as u8,
-            payload: Payload::new(it),
-        }
-    }
-
-    fn version_sum(&self) -> u32 {
-        self.version as u32
-            + match &self.payload {
-                Payload::Literal(_) => 0,
-                Payload::Operator(_, sub) => sub.iter().map(Packet::version_sum).sum(),
-            }
-    }
-
-    fn eval(&self) -> u64 {
-        match &self.payload {
-            Payload::Literal(n) => *n,
-            Payload::Operator(0, v) => v.iter().map(Packet::eval).sum(),
-            Payload::Operator(1, v) => v.iter().map(Packet::eval).product(),
-            Payload::Operator(2, v) => v.iter().map(Packet::eval).min().unwrap(),
-            Payload::Operator(3, v) => v.iter().map(Packet::eval).max().unwrap(),
-            Payload::Operator(5, v) => (v[0].eval() > v[1].eval()) as u64,
-            Payload::Operator(6, v) => (v[0].eval() < v[1].eval()) as u64,
-            Payload::Operator(7, v) => (v[0].eval() == v[1].eval()) as u64,
-            _ => unreachable!(),
-        }
-    }
-}
-
-enum Payload {
-    Literal(u64),
-    Operator(u8, Vec<Packet>),
-}
-
-impl Payload {
-    fn new(it: &mut DataIterator) -> Self {
+        let version = it.bits(3) as u8;
         match it.bits(3) {
-            4 => Self::new_number(it),
-            type_id => Self::new_operator(it, type_id as u8),
+            4 => Self::new_number(version, it),
+            type_id => Self::new_operator(version, it, type_id as u8),
         }
     }
 
-    fn new_number(it: &mut DataIterator) -> Self {
+    fn new_number(version: u8, it: &mut DataIterator) -> Self {
         let mut n = 0;
         while it.next().unwrap() {
             n = (n | it.bits(4)) << 4;
         }
-        Payload::Literal(n | it.bits(4))
+        Packet::Literal(version, n | it.bits(4))
     }
 
-    fn new_operator(it: &mut DataIterator, type_id: u8) -> Self {
+    fn new_operator(version: u8, it: &mut DataIterator, type_id: u8) -> Self {
         let packets = if it.bits(1) == 0 {
             let next_index = it.bits(15) as usize + it.index;
             std::iter::from_fn(|| (it.index < next_index).then(|| Packet::new(it))).collect()
@@ -66,7 +31,30 @@ impl Payload {
                 .map(|_| Packet::new(it))
                 .collect()
         };
-        Payload::Operator(type_id, packets)
+        Packet::Operator(version, type_id, packets)
+    }
+
+    fn version_sum(&self) -> u32 {
+        match &self {
+            Packet::Literal(version, _) => *version as u32,
+            Packet::Operator(version, _, sub) => {
+                *version as u32 + sub.iter().map(Packet::version_sum).sum::<u32>()
+            }
+        }
+    }
+
+    fn eval(&self) -> u64 {
+        match &self {
+            Packet::Literal(_, n) => *n,
+            Packet::Operator(_, 0, v) => v.iter().map(Packet::eval).sum(),
+            Packet::Operator(_, 1, v) => v.iter().map(Packet::eval).product(),
+            Packet::Operator(_, 2, v) => v.iter().map(Packet::eval).min().unwrap(),
+            Packet::Operator(_, 3, v) => v.iter().map(Packet::eval).max().unwrap(),
+            Packet::Operator(_, 5, v) => (v[0].eval() > v[1].eval()) as u64,
+            Packet::Operator(_, 6, v) => (v[0].eval() < v[1].eval()) as u64,
+            Packet::Operator(_, 7, v) => (v[0].eval() == v[1].eval()) as u64,
+            _ => unreachable!(),
+        }
     }
 }
 
