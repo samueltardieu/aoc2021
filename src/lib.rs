@@ -6,6 +6,7 @@ pub static mut OVERRIDE_INPUT: Option<String> = None;
 pub mod input;
 pub mod runners;
 
+pub mod bits;
 pub mod day1;
 pub mod day10;
 pub mod day11;
