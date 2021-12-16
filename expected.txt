@@ -33,3 +33,5 @@ Day 14 - part 1: 2447
 Day 14 - part 2: 3018019237563
 Day 15 - part 1: 602
 Day 15 - part 2: 2935
+Day 16 - part 1: 938
+Day 16 - part 2: 1495959086337
