@@ -1,4 +1,3 @@
-use anyhow::Result;
 use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
