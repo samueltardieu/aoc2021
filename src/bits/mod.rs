@@ -37,8 +37,9 @@ impl<'a> TryFrom<&'a [u8]> for Packet {
     type Error = nom::error::Error<&'a [u8]>;
 
     fn try_from(data: &'a [u8]) -> Result<Self, Self::Error> {
-        let r = nom::bits::bits(Packet::parse)(data);
-        r.finish().map(|(_, p)| p)
+        nom::bits::bits(Packet::parse)(data)
+            .finish()
+            .map(|(_, p)| p)
     }
 }
 
@@ -46,16 +47,12 @@ impl FromStr for Packet {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut data = Vec::with_capacity((s.len() + 1) / 2);
-        let mut chars = s.chars().fuse();
-        while let Some(c) = chars.next() {
-            data.push(
-                ((c.to_digit(16).unwrap() << 4)
-                    | chars.next().map(|c| c.to_digit(16).unwrap()).unwrap_or(0))
-                    as u8,
-            );
-        }
-        Self::try_from(data.as_ref())
+        let data = s
+            .as_bytes()
+            .chunks(2)
+            .map(|c| Ok(u8::from_str_radix(std::str::from_utf8(c)?, 16)?))
+            .collect::<Result<Vec<u8>, Self::Err>>()?;
+        Self::try_from(&data[..])
             .map_err(|e: nom::error::Error<_>| anyhow::anyhow!("parsing error: {:?}", e))
     }
 }
