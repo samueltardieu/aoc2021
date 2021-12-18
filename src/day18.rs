@@ -34,8 +34,8 @@ impl SnailFish {
 
     fn reduce(mut self) -> Self {
         loop {
-            while let ControlFlow::Break((i, a, b)) = self.check_explode(0, 0) {
-                self.do_explode(0, &(i, a, b));
+            while let ControlFlow::Break(explosion) = self.check_explode(0, 0) {
+                self.do_explode(0, &explosion);
             }
             if !self.split() {
                 return self;
@@ -50,15 +50,11 @@ impl SnailFish {
     ) -> ControlFlow<(usize, u32, u32), usize> {
         match self {
             SnailFish::Pair(a, b) if depth == 4 => {
-                let r = ControlFlow::Break((index, a.value().unwrap(), b.value().unwrap()));
+                let (a, b) = (a.value().unwrap(), b.value().unwrap());
                 *self = SnailFish::Regular(0);
-                r
+                ControlFlow::Break((index, a, b))
             }
-            SnailFish::Pair(a, b) => {
-                let index = a.check_explode(index, depth + 1)?;
-                let index = b.check_explode(index, depth + 1)?;
-                ControlFlow::Continue(index)
-            }
+            SnailFish::Pair(a, b) => b.check_explode(a.check_explode(index, depth + 1)?, depth + 1),
             SnailFish::Regular(_) => ControlFlow::Continue(index + 1),
         }
     }
@@ -78,11 +74,7 @@ impl SnailFish {
                 ControlFlow::Break(())
             }
             SnailFish::Regular(_) => ControlFlow::Continue(index + 1),
-            SnailFish::Pair(a, b) => {
-                let index = a.do_explode(index, e)?;
-                let index = b.do_explode(index, e)?;
-                ControlFlow::Continue(index)
-            }
+            SnailFish::Pair(a, b) => b.do_explode(a.do_explode(index, e)?, e),
         }
     }
 
