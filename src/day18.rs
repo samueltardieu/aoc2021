@@ -55,11 +55,11 @@ impl SnailFish {
                 r
             }
             SnailFish::Pair(a, b) => {
-                let aa = a.check_explode(index, depth + 1)?;
-                let bb = b.check_explode(index + aa, depth + 1)?;
-                ControlFlow::Continue(aa + bb)
+                let index = a.check_explode(index, depth + 1)?;
+                let index = b.check_explode(index, depth + 1)?;
+                ControlFlow::Continue(index)
             }
-            SnailFish::Regular(_) => ControlFlow::Continue(1),
+            SnailFish::Regular(_) => ControlFlow::Continue(index + 1),
         }
     }
 
@@ -71,17 +71,17 @@ impl SnailFish {
         match self {
             SnailFish::Regular(n) if index + 1 == *i => {
                 *self = SnailFish::Regular(*n + a);
-                ControlFlow::Continue(1)
+                ControlFlow::Continue(index + 1)
             }
             SnailFish::Regular(n) if index == *i + 1 => {
                 *self = SnailFish::Regular(*n + b);
                 ControlFlow::Break(())
             }
-            SnailFish::Regular(_) => ControlFlow::Continue(1),
+            SnailFish::Regular(_) => ControlFlow::Continue(index + 1),
             SnailFish::Pair(a, b) => {
-                let aa = a.do_explode(index, e)?;
-                let bb = b.do_explode(index + aa, e)?;
-                ControlFlow::Continue(aa + bb)
+                let index = a.do_explode(index, e)?;
+                let index = b.do_explode(index, e)?;
+                ControlFlow::Continue(index)
             }
         }
     }
