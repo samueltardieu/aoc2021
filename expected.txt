@@ -39,3 +39,5 @@ Day 17 - part 1: 10878
 Day 17 - part 2: 4716
 Day 18 - part 1: 2541
 Day 18 - part 2: 4647
+Day 19 - part 1: 323
+Day 19 - part 2: 10685
