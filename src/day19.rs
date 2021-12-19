@@ -74,19 +74,39 @@ fn intersect(s1: &BTreeSet<Point>, s2: &BTreeSet<Point>) -> Option<(BTreeSet<Poi
     None
 }
 
-fn normalize(mut left: Vec<BTreeSet<Point>>) -> Vec<(BTreeSet<Point>, Point)> {
+fn normalize(scanners: Vec<BTreeSet<Point>>) -> Vec<(BTreeSet<Point>, Point)> {
+    let mut left = scanners
+        .into_iter()
+        .map(|s| {
+            (
+                s.clone(),
+                s.iter()
+                    .flat_map(|a1| {
+                        s.iter()
+                            .filter_map(move |a2| (a1 != a2).then(|| a1.distance(a2)))
+                    })
+                    .collect::<BTreeSet<_>>(),
+            )
+        })
+        .collect::<Vec<_>>();
     let mut found = vec![(left.pop().unwrap(), Point::default())];
     while !left.is_empty() {
         let mut not_found = Vec::new();
-        for s2 in left {
-            match found.iter().find_map(|(s1, _)| intersect(s1, &s2)) {
-                Some((s, o)) => found.push((s, o)),
-                None => not_found.push(s2),
+        for (s2, d2) in left {
+            match found.iter().find_map(|((s1, d1), _)| {
+                if d1.intersection(&d2).count() >= 66 {
+                    intersect(s1, &s2)
+                } else {
+                    None
+                }
+            }) {
+                Some((s2, o)) => found.push(((s2, d2), o)),
+                None => not_found.push((s2, d2)),
             }
         }
         left = not_found;
     }
-    found
+    found.into_iter().map(|((s, _), o)| (s, o)).collect()
 }
 
 #[aoc(day19, part1)]
