@@ -1,15 +1,10 @@
 use cached::proc_macro::cached;
 use itertools::Itertools;
 
-fn starting_positions(s: &str) -> (u64, u64) {
-    let l = s.lines().flat_map(|l| l.split(": ").nth(1)).collect_vec();
-    (l[0].parse().unwrap(), l[1].parse().unwrap())
-}
-
 #[aoc(day21, part1)]
-fn part1(input: &str) -> u64 {
-    let (p1, p2) = starting_positions(input);
-    score(p1, 0, p2, 0, 1)
+fn part1(s: &str) -> u64 {
+    let l = s.lines().flat_map(|l| l.split(": ").nth(1)).collect_vec();
+    score(l[0].parse().unwrap(), 0, l[1].parse().unwrap(), 0, 1)
 }
 
 fn score(p1: u64, s1: u64, p2: u64, s2: u64, c: u64) -> u64 {
@@ -20,9 +15,9 @@ fn score(p1: u64, s1: u64, p2: u64, s2: u64, c: u64) -> u64 {
 }
 
 #[aoc(day21, part2)]
-fn part2(input: &str) -> u64 {
-    let (p1, p2) = starting_positions(input);
-    let (v1, v2) = wins(p1, 0, p2, 0);
+fn part2(s: &str) -> u64 {
+    let l = s.lines().flat_map(|l| l.split(": ").nth(1)).collect_vec();
+    let (v1, v2) = wins(l[0].parse().unwrap(), 0, l[1].parse().unwrap(), 0);
     v1.max(v2)
 }
 
