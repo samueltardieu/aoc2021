@@ -11,13 +11,13 @@ fn starting_positions(input: &str) -> (u64, u64) {
 #[aoc(day21, part1)]
 fn part1(input: &str) -> u64 {
     let (p1, p2) = starting_positions(input);
-    score(p1, 0, p2, 0, 0, 0)
+    score(p1, 0, p2, 0, 0)
 }
 
-fn score(p1: u64, s1: u64, p2: u64, s2: u64, d: u64, c: u64) -> u64 {
-    match (p1 + d * 3 + 5) % 10 + 1 {
+fn score(p1: u64, s1: u64, p2: u64, s2: u64, c: u64) -> u64 {
+    match (p1 + c * 3 + 5) % 10 + 1 {
         p1 if s1 + p1 >= 1000 => (c + 3) * s2,
-        p1 => score(p2, s2, p1, s1 + p1, (d + 2) % 100 + 1, c + 3),
+        p1 => score(p2, s2, p1, s1 + p1, c + 3),
     }
 }
 
