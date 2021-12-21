@@ -39,17 +39,16 @@ impl Sub<Point> for Point {
 fn generator(input: &str) -> Vec<BTreeSet<Point>> {
     let mut r: Vec<BTreeSet<Point>> = vec![];
     for l in input.lines() {
-        let len = r.len();
         match l
             .split(',')
             .map(|s| s.parse())
             .collect::<Result<Vec<_>, _>>()
         {
             Ok(v) if v.len() == 3 => {
-                r[len - 1].insert(Point(v[0], v[1], v[2]));
+                r.last_mut().unwrap().insert(Point(v[0], v[1], v[2]));
             }
             _ => {
-                if r.is_empty() || !r[len - 1].is_empty() {
+                if r.is_empty() || !r.last().unwrap().is_empty() {
                     r.push(BTreeSet::new());
                 }
             }

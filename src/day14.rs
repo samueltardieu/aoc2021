@@ -10,7 +10,7 @@ fn generator(input: &[&[u8]]) -> (Template, Rules) {
         .for_each(|w| *template.entry((w[0], w[1])).or_insert(0) += 1);
     let rules = input[2..]
         .iter()
-        .map(|l| ((l[0], l[1]), l[l.len() - 1]))
+        .map(|l| ((l[0], l[1]), *l.last().unwrap()))
         .collect();
     (template, rules)
 }

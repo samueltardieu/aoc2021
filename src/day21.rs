@@ -4,7 +4,7 @@ fn starting_positions(input: &str) -> (u64, u64) {
     let input = input.trim().as_bytes();
     (
         (input[input.len() / 2 - 1] - b'0') as u64,
-        (input[input.len() - 1] - b'0') as u64,
+        (input.last().unwrap() - b'0') as u64,
     )
 }
 

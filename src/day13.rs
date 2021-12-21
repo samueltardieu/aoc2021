@@ -12,7 +12,7 @@ fn generator(input: &str) -> (Grid, impl Iterator<Item = (u8, usize)> + '_) {
         .collect();
     let ins = lines.skip(1).map(|line| {
         let (left, right) = line.split_once('=').unwrap();
-        (left.bytes().rev().next().unwrap(), right.parse().unwrap())
+        (left.bytes().last().unwrap(), right.parse().unwrap())
     });
     (grid, ins)
 }
