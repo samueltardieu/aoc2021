@@ -41,7 +41,7 @@ fn main() -> anyhow::Result<()> {
                     .map(|s| s.trim())
                     .find(|s| version_re.is_match(s));
                 let (version, extension) = match version {
-                    Some(v) => (format!("Some({})", v), v),
+                    Some(v) => (format!(r#"Some(String::from("{}"))"#, v), v),
                     None => (String::from("None"), "none"),
                 };
                 refs.push(format!(

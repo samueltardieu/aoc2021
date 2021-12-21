@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.51"
 aoc2021-derive = { path = "aoc2021-derive" }
+cached = "0.26.2"
 chrono = "0.4.19"
 itertools = "0.10.1"
 lazy_static = "1.4.0"
