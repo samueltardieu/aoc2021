@@ -27,11 +27,9 @@ fn wins(p1: u64, s1: u64, p2: u64, s2: u64) -> (u64, u64) {
         .into_iter()
         .fold((0, 0), |(v1, v2), (d, n)| {
             let p1 = (p1 + d - 1) % 10 + 1;
-            if s1 + p1 >= 21 {
-                (v1 + n, v2)
-            } else {
-                let (w1, w2) = wins(p2, s2, p1, s1 + p1);
-                (v1 + w2 * n, v2 + w1 * n)
-            }
+            let (w1, w2) = (s1 + p1 < 21)
+                .then(|| wins(p2, s2, p1, s1 + p1))
+                .unwrap_or((1, 0));
+            (v1 + w2 * n, v2 + w1 * n)
         })
 }
