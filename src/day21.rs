@@ -1,15 +1,14 @@
 use cached::proc_macro::cached;
 
-fn starting_positions(input: &str) -> (u64, u64) {
-    let input = input.trim().as_bytes();
+fn starting_positions(input: &[&[u8]]) -> (u64, u64) {
     (
-        (input[input.len() / 2 - 1] - b'0') as u64,
-        (input.last().unwrap() - b'0') as u64,
+        (input[0].last().unwrap() - b'0') as u64,
+        (input[1].last().unwrap() - b'0') as u64,
     )
 }
 
 #[aoc(day21, part1)]
-fn part1(input: &str) -> u64 {
+fn part1(input: &[&[u8]]) -> u64 {
     let (p1, p2) = starting_positions(input);
     score(p1, 0, p2, 0, 1)
 }
@@ -22,7 +21,7 @@ fn score(p1: u64, s1: u64, p2: u64, s2: u64, c: u64) -> u64 {
 }
 
 #[aoc(day21, part2)]
-fn part2(input: &str) -> u64 {
+fn part2(input: &[&[u8]]) -> u64 {
     let (p1, p2) = starting_positions(input);
     let (v1, v2) = wins(p1, 0, p2, 0);
     v1.max(v2)
