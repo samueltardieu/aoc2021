@@ -10,7 +10,7 @@ fn generator(input: &str) -> (Vec<u8>, Matrix<u8>) {
 }
 
 fn decode(image: &Matrix<u8>, decoder: &[u8], odd: bool) -> Matrix<u8> {
-    let default = b".#"[(odd && decoder[0] == b'#') as usize];
+    let default = odd.then(|| decoder[0]).unwrap_or(b'.');
     (0..image.rows + 2)
         .map(|y| {
             (0..image.columns + 2).map(move |x| {
