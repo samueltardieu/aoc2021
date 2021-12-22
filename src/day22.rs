@@ -48,13 +48,13 @@ impl FromStr for Cuboid {
     type Err = nom::error::Error<String>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::parse(s)
-            .finish()
-            .map(|(_, b)| b)
-            .map_err(|nom::error::Error { input, code }| nom::error::Error {
+        match Self::parse(s).finish() {
+            Ok((_, cuboid)) => Ok(cuboid),
+            Err(nom::error::Error { input, code }) => Err(nom::error::Error {
                 input: input.to_owned(),
                 code,
-            })
+            }),
+        }
     }
 }
 
