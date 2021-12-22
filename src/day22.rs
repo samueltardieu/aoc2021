@@ -61,15 +61,11 @@ impl FromStr for Cuboid {
 #[aoc(day22, part1)]
 fn part1(mut cuboids: Vec<Cuboid>) -> i64 {
     cuboids.retain(|b| b.area.iter().all(|c| c.0 >= -50 && c.1 <= 50));
-    complete(cuboids)
+    part2(cuboids)
 }
 
 #[aoc(day22, part2)]
 fn part2(cuboids: Vec<Cuboid>) -> i64 {
-    complete(cuboids)
-}
-
-fn complete(cuboids: Vec<Cuboid>) -> i64 {
     let mut c = Vec::<Cuboid>::new();
     for cuboid in cuboids {
         for other in 0..c.len() {
