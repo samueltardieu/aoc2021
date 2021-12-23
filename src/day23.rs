@@ -80,10 +80,7 @@ impl Game {
                     }
                 }
                 let mut v = above;
-                for i in h + 1..=10 {
-                    if !self.is_free(i) {
-                        break;
-                    }
+                for i in (h + 1..=10).take_while(|&p| self.is_free(p)) {
                     v.push(i);
                     if Self::in_front_of_chamber(i).is_none() {
                         d.push(v.clone());
@@ -92,21 +89,16 @@ impl Game {
             }
         } else {
             let h = (idx / 4 + 1) as i64 * 2;
-            let cannot_enter = Self::all_below(h)
-                .any(|p| self.idx_at(p).map(|i| i / 4 != idx / 4).unwrap_or(false));
-            if !cannot_enter {
+            let can_enter = Self::all_below(h)
+                .all(|p| self.idx_at(p).map(|i| i / 4 == idx / 4).unwrap_or(true));
+            if can_enter {
                 let mut v = if h > pos {
                     (pos + 1..=h).collect::<Vec<_>>()
                 } else {
                     (h..pos).rev().collect::<Vec<_>>()
                 };
                 if v.iter().all(|&p| self.is_free(p)) {
-                    while let Some(p) = Self::down(*v.last().unwrap()) {
-                        if !self.is_free(p) {
-                            break;
-                        }
-                        v.push(p);
-                    }
+                    v.extend(Self::all_below(h).take_while(|&p| self.is_free(p)));
                     d.push(v);
                 }
             }
