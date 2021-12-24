@@ -8,10 +8,10 @@ use nom::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 enum Value {
     Register(usize),
-    Literal(i64),
+    Literal(i32),
 }
 
 impl Value {
@@ -20,14 +20,13 @@ impl Value {
     }
 
     fn parse(input: &str) -> IResult<&str, Value> {
-        use nom::character::complete::i64;
+        use nom::character::complete::i32;
         let reg = |i| map(Self::parse_reg, Value::Register)(i);
-        let lit = |i| map(i64, Value::Literal)(i);
+        let lit = |i| map(i32, Value::Literal)(i);
         alt((reg, lit))(input)
     }
 }
 
-#[derive(Clone, Copy, Debug)]
 enum Ins {
     Inp(usize),
     Add(usize, Value),
@@ -70,14 +69,14 @@ impl FromStr for Ins {
     }
 }
 
-#[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
+#[derive(Default)]
 struct Machine {
-    regs: [i64; 4],
+    regs: [i32; 4],
     smallest: bool,
 }
 
 impl Machine {
-    fn as_int(&self, v: &Value) -> i64 {
+    fn as_int(&self, v: &Value) -> i32 {
         match v {
             Value::Literal(i) => *i,
             Value::Register(r) => self.regs[*r],
@@ -88,22 +87,20 @@ impl Machine {
         &mut self,
         ins: &[Ins],
         idx: usize,
-        cache: &mut HashMap<(usize, i64), Option<String>>,
+        cache: &mut HashMap<(usize, i32), Option<String>>,
     ) -> Option<String> {
         let z = self.regs[3];
         if let Some(r) = cache.get(&(idx, z)) {
             return r.clone();
         }
-        let initial_regs = self.regs;
         let mut digits = (1..=9).collect::<Vec<_>>();
         if !self.smallest {
             digits.reverse();
         }
         'outer: for digit in digits {
-            self.regs = initial_regs;
-            self.regs[0] = digit;
+            self.regs = [digit, 0, 0, z];
             for i in idx..ins.len() {
-                match ins[i] {
+                match &ins[i] {
                     Ins::Inp(_) => {
                         if let Some(a) = self.solve(ins, i + 1, cache) {
                             let r = Some(format!("{}{}", digit, a));
@@ -112,11 +109,11 @@ impl Machine {
                         }
                         continue 'outer;
                     }
-                    Ins::Add(r, v) => self.regs[r] += self.as_int(&v),
-                    Ins::Mul(r, v) => self.regs[r] *= self.as_int(&v),
-                    Ins::Div(r, v) => self.regs[r] /= self.as_int(&v),
-                    Ins::Mod(r, v) => self.regs[r] %= self.as_int(&v),
-                    Ins::Eql(r, v) => self.regs[r] = (self.regs[r] == self.as_int(&v)) as i64,
+                    Ins::Add(r, v) => self.regs[*r] += self.as_int(v),
+                    Ins::Mul(r, v) => self.regs[*r] *= self.as_int(v),
+                    Ins::Div(r, v) => self.regs[*r] /= self.as_int(v),
+                    Ins::Mod(r, v) => self.regs[*r] %= self.as_int(v),
+                    Ins::Eql(r, v) => self.regs[*r] = (self.regs[*r] == self.as_int(v)) as i32,
                 }
             }
             if self.regs[3] == 0 {
@@ -132,17 +129,17 @@ impl Machine {
 
 #[aoc(day24, part1)]
 fn part1(ins: &[Ins]) -> String {
-    let mut cache = HashMap::new();
-    let mut m = Machine::default();
-    m.solve(ins, 1, &mut cache).unwrap()
+    Machine::default()
+        .solve(ins, 1, &mut HashMap::new())
+        .unwrap()
 }
 
 #[aoc(day24, part2)]
 fn part2(ins: &[Ins]) -> String {
-    let mut cache = HashMap::new();
-    let mut m = Machine {
+    Machine {
         smallest: true,
         ..Default::default()
-    };
-    m.solve(ins, 1, &mut cache).unwrap()
+    }
+    .solve(ins, 1, &mut HashMap::new())
+    .unwrap()
 }
