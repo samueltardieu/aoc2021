@@ -1,22 +1,27 @@
 use anyhow::bail;
 use aoc2021::runners;
 use chrono::{Datelike, Duration};
+use clap::Parser;
 use itertools::Itertools;
-use structopt::StructOpt;
 
-#[derive(StructOpt)]
-#[structopt(name = "AoC 2021", about = "Advent Of Code 2021")]
+#[derive(Parser)]
+#[clap(version, author)]
+/// Advent of Code 2021
 struct Opts {
-    #[structopt(short, long, help = "Run all days")]
+    #[clap(short, long)]
+    /// Run all days
     all: bool,
 
-    #[structopt(short, long, help = "Use a specific day")]
+    #[clap(short, long)]
+    /// Use a specific day
     day: Option<usize>,
 
-    #[structopt(short, long, help = "Show timing information")]
+    #[clap(short, long)]
+    /// Show timing information
     timing: bool,
 
-    #[structopt(short, long, help = "Use alternate input (file or string)")]
+    #[clap(short, long)]
+    /// Use alternate input (file or string)
     input: Option<String>,
 }
 
@@ -39,7 +44,7 @@ fn pretty_duration(duration: Duration) -> String {
 }
 
 fn main() -> anyhow::Result<()> {
-    let opts = Opts::from_args();
+    let opts = Opts::parse();
     if opts.day.is_some() && opts.all {
         bail!("--all and --day are not compatible");
     }
