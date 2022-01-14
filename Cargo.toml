@@ -20,7 +20,9 @@ members = ["aoc2021-derive"]
 
 [build-dependencies]
 anyhow = "1.0.51"
+prettyplease = "0.1.0"
 regex = "1.5.4"
+syn = "1.0.85"
 
 [features]
 

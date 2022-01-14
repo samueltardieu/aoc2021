@@ -1,20 +1,13 @@
 use regex::Regex;
-use std::{
-    fs::{self, File},
-    io::{BufRead, BufReader, Write},
-    path::PathBuf,
-};
+use std::fs::{self, File};
+use std::io::{BufRead, BufReader};
+use syn::parse_quote;
 
-fn output(runners: &[String]) -> anyhow::Result<()> {
-    let outdir = std::env::var("OUT_DIR")?;
-    let mut outfile = PathBuf::from(outdir);
-    outfile.push("register.rs");
-    let mut fd = File::create(outfile)?;
-    writeln!(fd, "pub fn register() {{")?;
-    for runner in runners {
-        writeln!(fd, "    {}", runner)?;
-    }
-    writeln!(fd, "}}")?;
+fn output(content: &str) -> anyhow::Result<()> {
+    fs::write(
+        format!("{}/register.rs", std::env::var("OUT_DIR")?),
+        content,
+    )?;
     Ok(())
 }
 
@@ -34,31 +27,37 @@ fn main() -> anyhow::Result<()> {
         }
         for l in BufReader::new(File::open(file.path())?).lines() {
             if let Some(m) = attr_re.captures(&l?) {
-                let day = &m[1];
-                let part = &m[2];
+                let day = m[1].parse::<usize>()?;
+                let part = m[2].parse::<usize>()?;
                 let version = m[3]
                     .split(',')
                     .map(|s| s.trim())
                     .find(|s| version_re.is_match(s));
-                let (version, extension) = match version {
-                    Some(v) => (format!(r#"Some(String::from("{}"))"#, v), v),
-                    None => (String::from("None"), "none"),
+                let (version, extension): (syn::Expr, &str) = match version {
+                    Some(v) => (parse_quote!(Some(String::from(#v)), v), v),
+                    None => (parse_quote!(None), "none"),
                 };
-                refs.push(format!(
-                    "crate::runners::register_runner({1}, {2}, {4}, crate::{0}::runner_{1}_{2}_{3});",
+                let mod_name: syn::Ident = syn::parse_str(
                     file.file_name()
                         .into_string()
                         .unwrap()
                         .strip_suffix(".rs")
                         .unwrap(),
-                    day,
-                    part,
-                    extension,
-                    version,
-                ));
+                )?;
+                let runner_name: syn::Ident =
+                    syn::parse_str(&format!("runner_{day}_{part}_{extension}"))?;
+                let stmt: syn::Stmt = parse_quote! {
+                    crate::runners::register_runner(#day, #part, #version, crate::#mod_name::#runner_name);
+                };
+                refs.push(stmt);
             }
         }
     }
-    output(&refs)?;
+    let register: syn::File = parse_quote! {
+        pub fn register() {
+            #(#refs)*
+        }
+    };
+    output(&prettyplease::unparse(&register))?;
     Ok(())
 }
