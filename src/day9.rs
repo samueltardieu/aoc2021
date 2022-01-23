@@ -16,7 +16,7 @@ fn part1(input: &str) -> u32 {
 fn part2(input: &str) -> usize {
     let m = input.lines().map(|c| c.bytes()).collect();
     lows(&m)
-        .map(|n| m.reachable(n, false, |k| m[k] != b'9' && m[k] > m[n]).len())
+        .map(|n| m.bfs_reachable(n, false, |k| m[k] != b'9' && m[k] > m[n]).len())
         .sorted_unstable_by(|a, b| b.cmp(a))
         .take(3)
         .product()
