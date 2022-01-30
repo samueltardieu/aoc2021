@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.51"
-aoc2021-derive = { path = "aoc2021-derive" }
+aoc-derive = { git = "https://github.com/samueltardieu/aoc" }
 cached = "0.30.0"
 chrono = "0.4.19"
 clap = { version = "3.0.7", features = ["derive"] }
@@ -15,14 +15,8 @@ nom = "7.1.0"
 pathfinding = "3.0.7"
 thiserror = "1.0.30"
 
-[workspace]
-members = ["aoc2021-derive"]
-
 [build-dependencies]
-anyhow = "1.0.51"
-prettyplease = "0.1.0"
-regex = "1.5.4"
-syn = "1.0.85"
+aoc-build = { git = "https://github.com/samueltardieu/aoc" }
 
 [features]
 
