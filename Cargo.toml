@@ -5,20 +5,15 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.51"
-aoc-derive = { git = "https://github.com/samueltardieu/aoc" }
+aoc = { git = "https://github.com/samueltardieu/aoc" }
 cached = "0.30.0"
-chrono = "0.4.19"
-clap = { version = "3.0.7", features = ["derive"] }
 itertools = "0.10.1"
-lazy_static = "1.4.0"
 nom = "7.1.0"
 pathfinding = "3.0.7"
 thiserror = "1.0.30"
 
 [build-dependencies]
 aoc-build = { git = "https://github.com/samueltardieu/aoc" }
-
-[features]
 
 [dev-dependencies]
 serial_test = "0.5.1"

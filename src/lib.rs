@@ -1,10 +1,9 @@
 #[macro_use]
-extern crate aoc_derive;
+extern crate aoc;
 
-pub static mut OVERRIDE_INPUT: Option<String> = None;
-
-pub mod input;
-pub mod runners;
+pub mod register {
+    include!(concat!(env!("OUT_DIR"), "/register.rs"));
+}
 
 pub mod bits;
 pub mod day1;

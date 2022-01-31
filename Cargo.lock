@@ -18,9 +18,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94a45b455c14666b85fc40a019e8ab9eb75e3a124e05494f5397122bc9eb06e0"
 
 [[package]]
+name = "aoc"
+version = "0.1.0"
+source = "git+https://github.com/samueltardieu/aoc#3b1f8b20f361efee5e2dd3ecb63138eeee73d79e"
+dependencies = [
+ "anyhow",
+ "aoc-derive",
+ "chrono",
+ "clap",
+ "itertools",
+ "lazy_static",
+]
+
+[[package]]
 name = "aoc-build"
 version = "0.1.0"
-source = "git+https://github.com/samueltardieu/aoc#1293a90fc44438fc745253b9d68dbc6cd7910432"
+source = "git+https://github.com/samueltardieu/aoc#3b1f8b20f361efee5e2dd3ecb63138eeee73d79e"
 dependencies = [
  "anyhow",
  "prettyplease",
@@ -31,7 +44,7 @@ dependencies = [
 [[package]]
 name = "aoc-derive"
 version = "0.1.0"
-source = "git+https://github.com/samueltardieu/aoc#1293a90fc44438fc745253b9d68dbc6cd7910432"
+source = "git+https://github.com/samueltardieu/aoc#3b1f8b20f361efee5e2dd3ecb63138eeee73d79e"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -44,13 +57,10 @@ name = "aoc2021"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc",
  "aoc-build",
- "aoc-derive",
  "cached",
- "chrono",
- "clap",
  "itertools",
- "lazy_static",
  "nom",
  "pathfinding",
  "serial_test",
